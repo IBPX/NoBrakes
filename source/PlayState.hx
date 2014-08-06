@@ -10,14 +10,22 @@ import flixel.util.FlxMath;
 /**
  * A FlxState which can be used for the actual gameplay.
  */
-class PlayState extends FlxState
-{
+class PlayState extends FlxState {
 	/**
 	 * Function that is called up when to state is created to set it up. 
 	 */
-	override public function create():Void
-	{
+	override public function create():Void {
 		FlxG.mouse.useSystemCursor = true;
+		var background = new FlxSprite();
+		background.loadGraphic("assets/images/background.png");
+		add(background);
+		
+		var truck = new FlxSprite();
+		truck.loadGraphic("assets/images/truck_forward.png");
+		truck.x = 60;
+		truck.y = 10;
+		var truckSpeed = 5;
+		add(truck);
 		super.create();
 	}
 	
@@ -25,16 +33,15 @@ class PlayState extends FlxState
 	 * Function that is called when this state is destroyed - you might want to 
 	 * consider setting all objects this state uses to null to help garbage collection.
 	 */
-	override public function destroy():Void
-	{
+	override public function destroy():Void {
 		super.destroy();
 	}
 
 	/**
 	 * Function that is called once every frame.
 	 */
-	override public function update():Void
-	{
+	override public function update():Void {
 		super.update();
+		
 	}	
 }
