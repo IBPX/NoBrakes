@@ -2,7 +2,7 @@
 <project>
 	<!------------------------------APPLICATION SETTINGS---------------------------->
 	
-	<app title="No Breaks" file="FlxProject" main="Main" version="0.0.1" company="ItsBobberson" />
+	<app title="No Brakes" file="NoBrakes" main="Main" version="0.0.1" company="ItsBobberson" />
 	
 	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
 	<!--or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"!-->
@@ -82,4 +82,5 @@
 	<!--------------------------------CUSTOM---------------------------------------->
 	
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
+	<icon path="assets/icon.png"/>
 </project>
