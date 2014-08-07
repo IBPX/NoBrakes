@@ -39,6 +39,7 @@ class PlayState extends FlxState {
 	var maxVelocity = 100;
 	var moveAmount:Float = 0;
 	var lastDirection:Bool = true;
+	var tweeningTitle:Bool = false;
 	
 	
 	override public function create():Void {
@@ -100,6 +101,11 @@ class PlayState extends FlxState {
 		if (FlxG.keys.pressed.A) { turnTruck(false); }
 		if (FlxG.keys.pressed.RIGHT) { turnTruck(true); }
 		if (FlxG.keys.pressed.LEFT) { turnTruck(false); }
+		if (FlxG.keys.pressed.ESCAPE) {
+			if (gamePlaying) {
+				if (tweeningTitle == false) { gameEnd(); };
+			}
+		}
 		jumpTruck(truck.x + moveAmount);
 		super.update();
 		
@@ -109,18 +115,18 @@ class PlayState extends FlxState {
 	public function gameStart() {
 		gamePlaying = true;
 		sound_gamestart.play();
-		tween(logo, 42, 33, 42, -100, 2.00, true, {ease: FlxEase.quadInOut});
-		tween(truck, 60, -50, 60, 10, 2, true, {ease: FlxEase.quadInOut});
+		tweeningTitle = true;
+		tween(logo, logo.x, logo.y, 42, -100, 2.00, true, {ease: FlxEase.quadInOut});
+		tween(truck, 60, truck.y, 60, 10, 2, true, {ease: FlxEase.quadInOut});
+		haxe.Timer.delay(setTweeningTitle, 2000);
 	}
 
 	public function gameEnd() {
 		gamePlaying = false;
-		tween(logo, 42, -100, 42, 33, 2.00, true, {ease: FlxEase.quadInOut});
-		truck = new FlxSprite();
-		truck.loadGraphic("assets/images/truck_forward.png");
-		truck.x = 60;
-		truck.y = -100;
-		truckSpeed = 0;
+		tweeningTitle = true;
+		tween(logo, logo.x, logo.y, 42, 33, 2.00, true, {ease: FlxEase.quadInOut});
+		tween(truck, truck.x, truck.y, truck.x, -50, 2, true, {ease: FlxEase.quadInOut});
+		haxe.Timer.delay(setTweeningTitle, 2000);
 	}
 
 	public function tween(sprite:FlxSprite, startx:Float, starty:Float, endx:Float, endy:Float, time:Float, respectTime:Bool, options):Void {
@@ -148,11 +154,15 @@ class PlayState extends FlxState {
 			moveAmount = (acceleration/fps)*direction;
 			lastDirection = right;
 		}
-		else { gameStart(); }
+		else { if (tweeningTitle == false) { gameStart(); } }
 	}
 
 	public function slowTruck():Void {
 		if (acceleration != 0) { acceleration = acceleration/1.25; }
 	}
 	// TRUCK FUNCTIONS END
+	// MISC
+	public function setTweeningTitle():Void {
+		tweeningTitle = false;
+	}
 }
