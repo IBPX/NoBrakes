@@ -2,16 +2,16 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
-
 import flixel.FlxState;
 import flixel.text.FlxText;
 import flixel.ui.FlxButton;
 import flixel.util.FlxMath;
 import flixel.tweens.FlxTween;
-
+import flixel.group.FlxGroup;
 import flixel.tweens.FlxEase;
 import flixel.system.FlxSound;
 import haxe.Timer;
+import Car;
 
 /**
 
@@ -41,6 +41,7 @@ class PlayState extends FlxState {
 	var tweeningTitle:Bool = false;
 	var score:Int;
 	var scoreDisplay:FlxText;
+	var _cars:FlxGroup;
 	
 	
 	override public function create():Void {
@@ -54,7 +55,7 @@ class PlayState extends FlxState {
 		gamePlaying = false;
 
 		score = 0;
-		scoreDisplay = new FlxText(0, 130, 160, score);
+		scoreDisplay = new FlxText(0, 130, 160, "", 8);
 		scoreDisplay.alignment = "center";
 		scoreDisplay.color = 0x759a71;
 
@@ -78,7 +79,14 @@ class PlayState extends FlxState {
 		truck.y = -100;
 		truckSpeed = 10;
 
-
+		_cars = new FlxGroup();
+		var numCars:Int = 10;
+		for (i in 0...numCars) {
+			var newCar = new Car(20, 150); // Place offscreen
+			_cars.add(newCar);
+		}
+		
+		add(_cars);
 		add(truck);
 		add(logo);
 		add(scoreDisplay);
@@ -113,6 +121,11 @@ class PlayState extends FlxState {
 				if (tweeningTitle == false) { gameEnd(); }
 			}
 		}
+		if (gamePlaying) {
+			score = score + 1;
+			scoreDisplay.text = score + "";
+			FlxG.overlap(truck, _cars, hitStuff);
+		}
 		jumpTruck(truck.x + moveAmount);
 		super.update();
 		
@@ -133,7 +146,9 @@ class PlayState extends FlxState {
 		gamePlaying = false;
 		tweeningTitle = true;
 		tween(logo, logo.x, logo.y, 42, 33, 2.00, true, {ease: FlxEase.quadInOut});
+		scoreDisplay.text = "Your Score: " + score;
 		tween(truck, truck.x, truck.y, truck.x, -50, 2, true, {ease: FlxEase.quadInOut});
+		
 		haxe.Timer.delay(setTweeningTitle, 2000);
 	}
 
@@ -144,6 +159,7 @@ class PlayState extends FlxState {
 
 
 	// TRUCK FUNCTIONS START
+	// Why didn't I just make this a class? // Fix later
 	public function jumpTruck(x:Float):Void {
 		if (x < 0) { x = 0; }
 		if (x > 160 - truck.width) { x = 160 - truck.width; }
@@ -172,5 +188,9 @@ class PlayState extends FlxState {
 	// MISC
 	public function setTweeningTitle():Void {
 		tweeningTitle = false;
+	}
+
+	public function hitStuff(object1, object2):Void {
+		gameEnd();
 	}
 }
