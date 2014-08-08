@@ -20,15 +20,14 @@ import haxe.Timer;
 class PlayState extends FlxState {
 	/**
 	 * Function that is called up when to state is created to set it up. 
-
 	 */
-
+	
 	var background:FlxSprite;
 	var logo:FlxSprite;
 	var truckSpeed:Float;
 
 	var truck:FlxSprite;
-	var gamePlaying:Bool;
+	var gamePlaying:Bool = false;
 	var sound_gamestart:FlxSound;
 	var sound_crash:FlxSound;
 
@@ -40,6 +39,8 @@ class PlayState extends FlxState {
 	var moveAmount:Float = 0;
 	var lastDirection:Bool = true;
 	var tweeningTitle:Bool = false;
+	var score:Int;
+	var scoreDisplay:FlxText;
 	
 	
 	override public function create():Void {
@@ -52,6 +53,10 @@ class PlayState extends FlxState {
 
 		gamePlaying = false;
 
+		score = 0;
+		scoreDisplay = new FlxText(0, 130, 160, score);
+		scoreDisplay.alignment = "center";
+		scoreDisplay.color = 0x759a71;
 
 		sound_gamestart = new FlxSound();
 		sound_gamestart.loadStream("assets/sounds/gamestart.mp3");
@@ -76,7 +81,9 @@ class PlayState extends FlxState {
 
 		add(truck);
 		add(logo);
+		add(scoreDisplay);
 		super.create();
+		
 	}
 
 	
@@ -103,7 +110,7 @@ class PlayState extends FlxState {
 		if (FlxG.keys.pressed.LEFT) { turnTruck(false); }
 		if (FlxG.keys.pressed.ESCAPE) {
 			if (gamePlaying) {
-				if (tweeningTitle == false) { gameEnd(); };
+				if (tweeningTitle == false) { gameEnd(); }
 			}
 		}
 		jumpTruck(truck.x + moveAmount);
@@ -114,6 +121,7 @@ class PlayState extends FlxState {
 	// GAME FUNCTIONS START
 	public function gameStart() {
 		gamePlaying = true;
+		score = 0;
 		sound_gamestart.play();
 		tweeningTitle = true;
 		tween(logo, logo.x, logo.y, 42, -100, 2.00, true, {ease: FlxEase.quadInOut});
