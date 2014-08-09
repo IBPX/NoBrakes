@@ -8,6 +8,8 @@ import flixel.ui.FlxButton;
 import flixel.util.FlxMath;
 import flixel.tweens.FlxTween;
 import flixel.group.FlxGroup;
+import flixel.group.FlxTypedGroup;
+import flixel.group.FlxTypedGroupIterator;
 import flixel.tweens.FlxEase;
 import flixel.system.FlxSound;
 import haxe.Timer;
@@ -38,7 +40,8 @@ class PlayState extends FlxState {
 	var tweeningTitle:Bool = false;
 	var score:Int;
 	var scoreDisplay:FlxText;
-	var _cars:FlxGroup;
+	var numCars:Int = 5;
+	var _cars:FlxTypedGroup<Car>;
 	var alreadyStartedGameStart:Bool = false; // A bit of debounce.
 
 	var stepSpeed:Float = 20;
@@ -58,6 +61,7 @@ class PlayState extends FlxState {
 		scoreDisplay = new FlxText(0, 130, 160, "", 8);
 		scoreDisplay.alignment = "center";
 		scoreDisplay.color = 0x759a71;
+		scoreDisplay.setBorderStyle(FlxText.BORDER_OUTLINE, 0xa4cba0, 1);
 
 		sound_gamestart = new FlxSound();
 		sound_gamestart.loadStream("assets/sounds/gamestart.mp3");
@@ -74,13 +78,13 @@ class PlayState extends FlxState {
 
 		truck = new FlxSprite();
 		truck.loadGraphic("assets/images/truck_forward.png");
+		truck.width = 20;
 		truck.x = 60;
-
 		truck.y = -100;
 		truckSpeed = 10;
 
-		_cars = new FlxGroup();
-		var numCars:Int = 10;
+		var numCars:Int = 5;
+		_cars = new FlxTypedGroup<Car>(numCars);
 		for (i in 0...numCars) {
 			var newCar = new Car(20, 145); // Place offscreen
 			newCar.placeRandom();
@@ -117,7 +121,7 @@ class PlayState extends FlxState {
 			scoreDisplay.text = score + "";
 			FlxG.overlap(truck, _cars, hitStuff);
 			_cars.callAll('step', [stepSpeed]);
-			stepSpeed = stepSpeed + 0.1;
+			stepSpeed = stepSpeed + 0.05;
 		}
 		jumpTruck(truck.x + moveAmount);
 		super.update();
@@ -130,10 +134,12 @@ class PlayState extends FlxState {
 			alreadyStartedGameStart = true;
 			score = 0;
 			sound_gamestart.play();
+			stepSpeed = 20;
 			tweeningTitle = true;
 			tween(logo, logo.x, logo.y, 42, -100, 2.00, true, {ease: FlxEase.quadInOut});
 			tween(truck, 60, truck.y, 60, 10, 2, true, {ease: FlxEase.quadInOut});
 			haxe.Timer.delay(setTweeningTitle, 2000);
+			placeRandomCars();
 			gamePlaying = true;
 			alreadyStartedGameStart = false;
 		}
@@ -189,6 +195,14 @@ class PlayState extends FlxState {
 
 	public function hitStuff(object1, object2):Void {
 		gameEnd();
+	}
+
+	public function placeRandomCars():Void {
+		for (i in 0...numCars) {
+			var newCar = _cars.recycle();
+			newCar.placeRandom();
+			newCar.y = 145 + (i*45);
+		}
 	}
 
 	/*public function randomizeCars():Void { // Doesn't work, no array iteration for FlxGroups.

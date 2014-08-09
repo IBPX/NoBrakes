@@ -18,10 +18,14 @@ class Car extends FlxSprite {
 	public function new(x:Int, y:Int):Void {
 		super(x, y);
 		loadGraphic("assets/images/car.png");
+		width = 20;
 	}
 
-	public function step(speed):Void {
+	public function step(speed:Float):Void {
 		this.y = this.y - (speed / _fps);
+		if (this.y < -42) {
+			this.y = 145;
+		}
 	}
 
 	public function placeRandom() { // Place randomly on the X axis.
