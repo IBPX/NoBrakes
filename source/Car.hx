@@ -12,6 +12,7 @@ import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 import flixel.system.FlxSound;
 import haxe.Timer;
+import Math;
 
 class Car extends FlxSprite {
 	private var _fps:Int = 30; // Use for step();
@@ -22,6 +23,11 @@ class Car extends FlxSprite {
 	}
 
 	public function step(speed):Void {
-		this.y = this.y + (speed / _fps);
+		this.y = this.y - (speed / _fps);
+	}
+
+	public function placeRandom() { // Place randomly on the X axis.
+		this.y = 144;
+		this.x = (Math.random() * 136);
 	}
 }
