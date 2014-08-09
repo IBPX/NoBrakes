@@ -40,6 +40,8 @@ class PlayState extends FlxState {
 	var scoreDisplay:FlxText;
 	var _cars:FlxGroup;
 	var alreadyStartedGameStart:Bool = false; // A bit of debounce.
+
+	var stepSpeed:Float = 20;
 	
 	
 	override public function create():Void {
@@ -80,7 +82,7 @@ class PlayState extends FlxState {
 		_cars = new FlxGroup();
 		var numCars:Int = 10;
 		for (i in 0...numCars) {
-			var newCar = new Car(20, 150); // Place offscreen
+			var newCar = new Car(20, 145); // Place offscreen
 			newCar.placeRandom();
 			_cars.add(newCar);
 		}
@@ -114,7 +116,8 @@ class PlayState extends FlxState {
 			score = score + 1; // Derpy scoring system; 30pts per second.
 			scoreDisplay.text = score + "";
 			FlxG.overlap(truck, _cars, hitStuff);
-			_cars.callAll('step', [10]);
+			_cars.callAll('step', [stepSpeed]);
+			stepSpeed = stepSpeed + 0.1;
 		}
 		jumpTruck(truck.x + moveAmount);
 		super.update();
@@ -140,10 +143,10 @@ class PlayState extends FlxState {
 		gamePlaying = false;
 		tweeningTitle = true;
 		tween(logo, logo.x, logo.y, 42, 33, 2.00, true, {ease: FlxEase.quadInOut});
+		haxe.Timer.delay(setTweeningTitle, 2000);
 		scoreDisplay.text = "Your Score: " + score;
 		tween(truck, truck.x, truck.y, truck.x, -50, 2, true, {ease: FlxEase.quadInOut});
-		
-		haxe.Timer.delay(setTweeningTitle, 2000);
+		_cars.callAll("tweenAway");
 	}
 
 	public function tween(sprite:FlxSprite, startx:Float, starty:Float, endx:Float, endy:Float, time:Float, respectTime:Bool, options):Void {
@@ -188,7 +191,10 @@ class PlayState extends FlxState {
 		gameEnd();
 	}
 
-	public function randomizeCars():Void {
-		
-	}
+	/*public function randomizeCars():Void { // Doesn't work, no array iteration for FlxGroups.
+		for (i in 0...10) {
+			_cars[i].placeRandom()
+			_cars[i].y = 145 + (45*i)
+		}
+	}*/
 }
