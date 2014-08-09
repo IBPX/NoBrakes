@@ -18,10 +18,7 @@ import Car;
  * A FlxState which can be used for the actual gameplay.
  */
 class PlayState extends FlxState {
-	/**
-	 * Function that is called up when to state is created to set it up. 
-	 */
-	
+	// VARIABLE DEFINES
 	var background:FlxSprite;
 	var logo:FlxSprite;
 	var truckSpeed:Float;
@@ -42,6 +39,7 @@ class PlayState extends FlxState {
 	var score:Int;
 	var scoreDisplay:FlxText;
 	var _cars:FlxGroup;
+	var alreadyStartedGameStart:Bool = false; // A bit of debounce.
 	
 	
 	override public function create():Void {
@@ -83,6 +81,7 @@ class PlayState extends FlxState {
 		var numCars:Int = 10;
 		for (i in 0...numCars) {
 			var newCar = new Car(20, 150); // Place offscreen
+			newCar.placeRandom();
 			_cars.add(newCar);
 		}
 		
@@ -94,21 +93,11 @@ class PlayState extends FlxState {
 		
 	}
 
-	
-	/**
-	 * Function that is called when this state is destroyed - you might want to 
-	 * consider setting all objects this state uses to null to help garbage collection.
-	 */
-
 	override public function destroy():Void {
 		super.destroy();
 	}
 
-	/**
-	 * Function that is called once every frame.
-
-	 */
-	override public function update():Void {
+	override public function update():Void { // Called 30 times a second
 		updateMoved = false;
 		//acceleration = 0;
 		slowTruck();
@@ -122,9 +111,10 @@ class PlayState extends FlxState {
 			}
 		}
 		if (gamePlaying) {
-			score = score + 1;
+			score = score + 1; // Derpy scoring system; 30pts per second.
 			scoreDisplay.text = score + "";
 			FlxG.overlap(truck, _cars, hitStuff);
+			_cars.callAll('step', [10]);
 		}
 		jumpTruck(truck.x + moveAmount);
 		super.update();
@@ -133,13 +123,17 @@ class PlayState extends FlxState {
 
 	// GAME FUNCTIONS START
 	public function gameStart() {
-		gamePlaying = true;
-		score = 0;
-		sound_gamestart.play();
-		tweeningTitle = true;
-		tween(logo, logo.x, logo.y, 42, -100, 2.00, true, {ease: FlxEase.quadInOut});
-		tween(truck, 60, truck.y, 60, 10, 2, true, {ease: FlxEase.quadInOut});
-		haxe.Timer.delay(setTweeningTitle, 2000);
+		if (!alreadyStartedGameStart) { // Debounce
+			alreadyStartedGameStart = true;
+			score = 0;
+			sound_gamestart.play();
+			tweeningTitle = true;
+			tween(logo, logo.x, logo.y, 42, -100, 2.00, true, {ease: FlxEase.quadInOut});
+			tween(truck, 60, truck.y, 60, 10, 2, true, {ease: FlxEase.quadInOut});
+			haxe.Timer.delay(setTweeningTitle, 2000);
+			gamePlaying = true;
+			alreadyStartedGameStart = false;
+		}
 	}
 
 	public function gameEnd() {
@@ -171,7 +165,7 @@ class PlayState extends FlxState {
 		var direction = 1;
 		if (right == false) { direction = -1; }
 		if (gamePlaying) {
-			if (right == lastDirection) {} else { acceleration = 20; } // Don't know how to do 'if not' in Haxe. Fix later.
+			if (!right == lastDirection) { acceleration = 20; }
 			if (acceleration < 20) { acceleration = 20; }
 			if (acceleration < maxVelocity) { acceleration = acceleration * 1.3; }
 			if (acceleration > maxVelocity) { acceleration = maxVelocity; }
@@ -192,5 +186,9 @@ class PlayState extends FlxState {
 
 	public function hitStuff(object1, object2):Void {
 		gameEnd();
+	}
+
+	public function randomizeCars():Void {
+		
 	}
 }
